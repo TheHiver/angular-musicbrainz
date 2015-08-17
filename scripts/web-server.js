@@ -4,9 +4,15 @@ var util = require('util'),
     http = require('http'),
     fs = require('fs'),
     url = require('url'),
-    events = require('events');
+    events = require('events')
+    httpProxy = require('http-proxy');
 
 var DEFAULT_PORT = 8000;
+
+var proxy = httpProxy.createServer({
+  target:'http://localhost:9200'
+});
+
 
 function main(argv) {
   new HttpServer({
@@ -91,6 +97,9 @@ StaticServlet.prototype.handleRequest = function(req, res) {
     return String.fromCharCode(parseInt(hex, 16));
   });
   var parts = path.split('/');
+  if(parts[0] === "api") {
+    proxy.web
+  }
   if (parts[parts.length-1].charAt(0) === '.')
     return self.sendForbidden_(req, res, path);
   fs.stat(path, function(err, stat) {

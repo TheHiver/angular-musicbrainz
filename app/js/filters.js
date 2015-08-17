@@ -39,4 +39,8 @@ angular.module('musicAlbumApp.filters', []).
             }
             return $rootScope.translation.FILTER_RELEASE_DATE_YEAR + ' ' + range.from;
         };
-    }]);
+    }]).filter('musicnodesEmbedUrl', function ($sce) {
+        return function(nodeId) {
+          return $sce.trustAsResourceUrl('http://www.musicnodes.com/widget/public/view?wid=3403&id='+nodeId+'&services=spotify,deezer,youtube,itunes"');
+        }
+    });

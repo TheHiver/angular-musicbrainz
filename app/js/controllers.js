@@ -23,7 +23,22 @@ angular.module('musicAlbumApp.controllers', ['ui.bootstrap']).
             var from = ($scope.currentPage - 1) * $scope.pageSize.count;
             searchService.fullTextSearch(from, $scope.pageSize.count, text).then(
                 function (resp) {
+                    angular.forEach(resp.hits.hits, function (hit) {
+                        searchService.getMusicnodesId(hit._source.artist.name,hit._source.name).then(function(res) {
+                           console.log("Musicnodes Status: "+res.status);
+                           if(res.status === 'ok') {
+                               console.log("nodeId: "+res.data.tracks[0].album.id);
+                               var value = res.data.tracks[0].album.id;
+                
+                               console.log("final value: "+value);
+                               hit._source.nodeId = value;
+                           } else {
+                               return null;
+                           }
+                        });
+                    });
                     $scope.searchResp = resp;
+                    console.log(resp);
                     $scope.totalItems = resp.hits.total;
                 }
             );
@@ -54,6 +69,10 @@ angular.module('musicAlbumApp.controllers', ['ui.bootstrap']).
         $scope.rangeGreaterThanZero = function (range) {
             return range.count > 0;
         };
+
+        $scope.musicnodeId = function (text) {
+
+        }
     }])
     .controller('InfoCtrl', ['$scope', function ($scope) {
         $scope.demoUrl = 'http://angular-musicbrainz.javaetmoi.com/';

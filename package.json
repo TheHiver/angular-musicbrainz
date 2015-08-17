@@ -36,5 +36,10 @@
     "time-grunt": "~0.2.8",
     "grunt-karma": "~0.8.2",
     "grunt-karma-coveralls": "~2.4.4"
+  },
+  "dependencies": {
+    "express": "^4.13.3",
+    "http-proxy-middleware": "^0.5.0",
+    "proxy-middleware": "^0.13.1"
   }
 }

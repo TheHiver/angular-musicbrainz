@@ -28,5 +28,13 @@ angular.module('musicAlbumApp.directives', []).
             },
             templateUrl: 'partials/directives/cover.html'
         };
+    }).directive('musicnodeplayer', function () {
+        return {
+            restrict: 'E',
+            replace: true,
+            scope: {
+                nodeId: '='
+            },
+            templateUrl: 'partials/directives/MusicNodePlayer.html'
+        };
     });
-

@@ -39,7 +39,11 @@
             <table class="table table-striped">
                 <tr ng-repeat="hit in searchResp.hits.hits">
                     <td>
-                        <cover album-id="hit._source.id"></cover>
+                        <cover album-id="hit._source.gid"></cover>
+                    </td>
+                    <td>
+                        {{hit._source.nodeId}}
+                        <musicnodeplayer ng-if="hit._source.nodeId != null" node-id="hit._source.nodeId"></musicnodeplayer>
                     </td>
                     <td>
                         <a href="http://musicbrainz.org/release-group/{{hit._source.id}}">
@@ -83,4 +87,3 @@
         </div>
     </div>
 </div>
-

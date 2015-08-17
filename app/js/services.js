@@ -10,17 +10,17 @@ angular.module('musicAlbumApp.services', ['ngResource'])
         return esFactory({
             hosts: [
                 // you may use localhost:9200 with a local Elasticsearch cluster
-                'es.javaetmoi.com:80'
+                'localhost:3000/esapi'
             ],
             log: 'trace',
             sniffOnStart: false
         });
     }])
-    .factory('searchService', ['es', function (es) {
+    .factory('searchService', ['es','$resource', function (es, $resource) {
         return {
             'fullTextSearch': function (from, size, text) {
                 return es.search({
-                    index: 'musicalbum',
+                    index: 'musicreleasegroup',
                     type: 'album',
                     body: {
                         'from': from,
@@ -75,7 +75,7 @@ angular.module('musicAlbumApp.services', ['ngResource'])
 
             'autocomplete': function (text) {
                 return es.search({
-                    index: 'musicalbum',
+                    index: 'musicreleasegroup',
                     type: 'album',
                     body: {
                         'fields': [
@@ -115,6 +115,10 @@ angular.module('musicAlbumApp.services', ['ngResource'])
                         }
                     }
                 });
+            },
+            'getMusicnodesId': function (artist, album) {
+                var url = "/player/api/v1/search?apikey=g353qi2015836n17053308p_55cc6a80f61e46c34d000430&q="+encodeURI(artist+" "+album);
+                return $resource(url).get().$promise;
             }
         };
     }])
@@ -157,4 +161,5 @@ angular.module('musicAlbumApp.services', ['ngResource'])
                 $scope.translation = data;
             });
         };
-    }]);
+    }
+]);

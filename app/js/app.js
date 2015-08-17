@@ -9,7 +9,14 @@ angular.module('musicAlbumApp', [
         'musicAlbumApp.services',
         'musicAlbumApp.directives',
         'musicAlbumApp.controllers'
-    ]).
+    ]).config(function($sceDelegateProvider){
+        $sceDelegateProvider.resourceUrlWhitelist([
+            // Allow same origin resource loads.
+            'self',
+            // Allow loading from our assets domain.  Notice the difference between * and **.
+            'http://www.musicnodes.com/widget/**'
+          ]);
+    }).
     run(['$http', '$rootScope', 'userLanguage', 'translation', function ($http, $rootScope, userLanguage, translation) {
         var langRange = 'en-us';
         var language = 'en';
