@@ -24,12 +24,12 @@ angular.module('musicAlbumApp.controllers', ['ui.bootstrap']).
             searchService.fullTextSearch(from, $scope.pageSize.count, text).then(
                 function (resp) {
                     angular.forEach(resp.hits.hits, function (hit) {
-                        searchService.getMusicnodesId(hit._source.artist.name,hit._source.name).then(function(res) {
+                        searchService.getMusicnodesId(hit._source.album.artist.name,hit._source.album.name).then(function(res) {
                            console.log("Musicnodes Status: "+res.status);
                            if(res.status === 'ok') {
-                               console.log("nodeId: "+res.data.tracks[0].album.id);
-                               var value = res.data.tracks[0].album.id;
-                
+                               console.log("nodeId: "+res.node.id);
+                               var value = res.node.id;
+
                                console.log("final value: "+value);
                                hit._source.nodeId = value;
                            } else {
@@ -59,7 +59,7 @@ angular.module('musicAlbumApp.controllers', ['ui.bootstrap']).
             return searchService.autocomplete(text).then(function (res) {
                 var albums = [];
                 angular.forEach(res.hits.hits, function (hit) {
-                    albums.push(hit.fields['artist.name'] + ' - ' + hit.fields.name + ' (' + hit.fields.year + ')');
+                    albums.push(hit.fields['album.artist.name'] + ' - ' + hit.fields['album.name'] + ' (' + hit.fields['album.year'] + ')');
                 });
                 $scope.autocompleteResp = albums;
                 return albums;

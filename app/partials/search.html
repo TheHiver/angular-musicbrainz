@@ -9,7 +9,7 @@
         <label id="search-input-label" class="col-sm-3 control-label" ng-bind="translation.SEARCH_LABEL">Searching a music album</label>
         <div class="col-sm-6">
             <input type="text" class="form-control"  placeholder="{{translation.SEARCH_PLACEHOLDER}}" ng-model="searchText"
-                   typeahead="album for album in autocomplete($viewValue) | filter:$viewValue" />
+                   typeahead="fullTextSearch(searchText, 1)" />
         </div>
         <div class="col-sm-1">
             <button type="submit" class="btn btn-primary" ng-click="fullTextSearch(searchText, 1)" ng-bind="translation.SEARCH_BUTTON">MusicBrainz Search</button>
@@ -42,19 +42,22 @@
                         <cover album-id="hit._source.gid"></cover>
                     </td>
                     <td>
-                        {{hit._source.nodeId}}
                         <musicnodeplayer ng-if="hit._source.nodeId != null" node-id="hit._source.nodeId"></musicnodeplayer>
                     </td>
                     <td>
-                        <a href="http://musicbrainz.org/release-group/{{hit._source.id}}">
-                            <strong>{{hit._source.name}}</strong></a>
+                        <a href="http://musicbrainz.org/release-group/{{hit._source.album.gid}}">
+                            <strong>{{hit._source.album.name}}</strong></a>
                         {{translation.ALBUM_FROM}}
-                        <a href="http://musicbrainz.org/artist/{{hit._source.artist.id}}">
-                            <strong>{{hit._source.artist.name}}</strong>
+                        <a href="http://musicbrainz.org/artist/{{hit._source.album.artist.gid}}">
+                            <strong>{{hit._source.album.artist.name}}</strong>
                         </a><br />
-                        <rank score="hit._source.rating.score"></rank><br/>
-                        {{translation.ALBUM_RELEASE}} {{hit._source.year}} - {{hit._source.artist.country_name}}<br />
-                        {{translation.ALBUM_KIND}}: {{hit._source.tags | joinBy:' - '}}
+                        <rank score="hit._source.album.rating.score"></rank><br/>
+                        {{translation.LABEL_RELEASE_ON}}:
+                        <a href="http://musicbrainz.org/label/{{hit._source.label.gid}}">
+                            <strong>{{hit._source.label.name}}</strong>
+                        </a><br />
+                        {{translation.ALBUM_RELEASE}}: {{hit._source.album.year}} - {{hit._source.album.artist.area_name}}<br />
+                        {{translation.ALBUM_KIND}}: {{hit._source.album.tags | joinBy:' - '}}
                     </td>
                 </tr>
             </table>

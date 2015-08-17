@@ -11,8 +11,12 @@
     "SEARCH_PAGE_RESULT" : "results per page",
 
     "ALBUM_FROM" : "from",
-    "ALBUM_RELEASE": "release in",
-    "ALBUM_KIND": "Kind",
+    "ALBUM_RELEASE": "Release in",
+    "ALBUM_IN": "in",
+
+    "ALBUM_KIND": "Genre",
+
+    "LABEL_RELEASE_ON": "Released on",
 
     "FILTER_TITLE" : "Filters",
     "FILTER_RATING" : "Rating",
