@@ -16,9 +16,74 @@ angular.module('musicAlbumApp.services', ['ngResource'])
       sniffOnStart: false
     });
   }])
-  .factory('searchService', ['es', '$resource', function(es, $resource) {
+  .factory('searchService', ['es', '$resource', '$q',function(es, $resource, $q) {
     return {
-      'fullTextSearch': function(from, size, text) {
+      'fullTextSearch': function(from, size, artist_text, album_text, label_text, year) {
+        var should = [];
+        console.log('Params: ' + artist_text + " " + album_text + " " + label_text + " " + year);
+        if (artist_text && artist_text != "") {
+          should.push({
+            'nested': {
+              'path': 'album.artist',
+              'query': {
+                'match': {
+                  'album.artist.name.start': {
+                    'query': artist_text,
+                    'operator': 'AND',
+                    'fuzziness': 'AUTO'
+                  }
+                }
+              }
+            }
+          });
+        }
+        if (album_text && album_text != "") {
+          should.push({
+            'nested': {
+              'path': 'album',
+              'query': {
+                'match': {
+                  'album.name.start': {
+                    'query': label_text,
+                    'operator': 'AND',
+                    'fuzziness': 'AUTO'
+                  }
+                }
+              }
+            }
+          });
+        }
+        if (label_text && label_text != "") {
+          should.push({
+            'nested': {
+              'path': 'label',
+              'query': {
+                'match': {
+                  'label.name.start': {
+                    'query': label_text,
+                    'operator': 'AND',
+                    'fuzziness': 'AUTO'
+                  }
+                }
+              }
+            }
+          });
+        }
+        if (year && year != "") {
+          should.push({
+            'nested': {
+              'path': 'album',
+              'query': {
+                'match': {
+                  'album.year': {
+                    'query': parseInt(year)
+                  }
+                }
+              }
+            }
+          });
+        }
+
         return es.search({
           index: 'musicrelease',
           type: 'release',
@@ -26,12 +91,10 @@ angular.module('musicAlbumApp.services', ['ngResource'])
             'from': from,
             'size': size,
             'query': {
-              'multi_match': {
-                'query': text,
-                'fuzziness': 1.1,
-                'slop': 2,
-                'type': 'most_fields',
-                'fields': ['album.artist.name', 'name']
+              'bool': {
+                'should': should,
+                'minimum_should_match': should.length,
+                'boost': 1.0
               }
             },
             'facets': {
@@ -105,20 +168,16 @@ angular.module('musicAlbumApp.services', ['ngResource'])
             'fields': [
               'album.artist.name',
               'id',
-              'album.name',
+              'name',
               'album.year'
             ],
             'query': {
-              'query_string': {
-                'fields': [
-                  'name',
-                  'album.artist.name',
-                  'name.start'
-                ],
+              'multi_match': {
                 'query': text,
-                'use_dis_max': false,
-                'auto_generate_phrase_queries': true,
-                'default_operator': 'OR'
+                'fuzziness': 1.1,
+                'slop': 2,
+                'type': 'most_fields',
+                'fields': ['name']
               }
             },
             'highlight': {
@@ -139,10 +198,23 @@ angular.module('musicAlbumApp.services', ['ngResource'])
         });
       },
       'getMusicnodesId': function(artist, album) {
+        var deferredObject = $q.defer();
         var url = "/player/api/v1/node?method=createalbumnode&apikey=g353qi2015836n17053308p_55cc6a80f61e46c34d000430&artist=" + encodeURI(artist) + "&album=" + encodeURI(album);
-        return $resource(url).get().$promise;
+        $resource(url).get().$promise.then(function(res) {
+          console.log("Musicnodes Status: " + res.status);
+          if (res.status === 'ok') {
+            console.log("nodeId: " + res.node.id);
+            var value = res.node.id;
+            deferredObject.resolve(value);
+          } else {
+            deferredObject.resolve(null);
+          }
+        }, function(res) {
+          deferredObject.resolve(null);
+        });
+        return deferredObject.promise;
       }
-    };
+    }
   }])
   .value('userLanguage', {
     getFirstLanguageRange: function(acceptLang) {

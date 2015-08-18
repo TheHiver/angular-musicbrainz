@@ -1,92 +1,111 @@
 <form class="form-horizontal well">
-    <div class="form-group">
-        <div ng-hide="isAvailableResults()">
-            <div class="row text-center hidden-xs">
-                <img src="img/musicbrainz.png" alt="MusicBrainz Logo" /><br/>
-                <br/>
-            </div>
-        </div>
-        <label id="search-input-label" class="col-sm-3 control-label" ng-bind="translation.SEARCH_LABEL">Searching a music album</label>
-        <div class="col-sm-6">
-            <input type="text" class="form-control"  placeholder="{{translation.SEARCH_PLACEHOLDER}}" ng-model="searchText"
-                   typeahead="fullTextSearch(searchText, 1)" />
-        </div>
-        <div class="col-sm-1">
-            <button type="submit" class="btn btn-primary" ng-click="fullTextSearch(searchText, 1)" ng-bind="translation.SEARCH_BUTTON">MusicBrainz Search</button>
-        </div>
+  <div class="form-group" ng-controller="SearchCtrl">
+    <div ng-hide="isAvailableResults()">
+      <div class="row text-center hidden-xs">
+        <img  alt="MusicBrainz Logo" src="img/musicbrainz.png"/><br/>
+        <br/>
+      </div>
     </div>
+    <label class="col-sm-1 control-label" id="search-input-label" ng-bind="translation.SEARCH_LABEL">Search</label>
+    <div class="col-sm-2">
+      <input  class="form-control" ng-change="fullTextSearch(search, 1)" ng-model="search.artist" placeholder="{{translation.SEARCH_ARTIST_PLACEHOLDER}}" type="text"/>
+    </div>
+    <div class="col-sm-2">
+      <input  class="form-control" ng-change="fullTextSearch(search, 1)" ng-model="search.album" placeholder="{{translation.SEARCH_ALBUM_PLACEHOLDER}}" type="text"/>
+    </div>
+    <div class="col-sm-2">
+      <input  class="form-control" ng-change="fullTextSearch(search, 1)" ng-model="search.label" placeholder="{{translation.SEARCH_LABEL_PLACEHOLDER}}" type="text"/>
+    </div>
+    <div class="col-sm-2">
+      <input  class="form-control" ng-change="fullTextSearch(search, 1)" ng-model="search.year" placeholder="{{translation.SEARCH_YEAR_PLACEHOLDER}}" type="text"/>
+    </div>
+    <div class="col-sm-1">
+      <button class="btn btn-primary" ng-bind="translation.SEARCH_BUTTON" ng-click="fullTextSearch(search, 1)" type="submit">MusicBrainz Search</button>
+    </div>
+  </div>
 </form>
-
-
-
+<div class="row">{{searchResp.hits.total}}<div>
 <div ng-show="isAvailableResults()">
-    <div class="row">
-        <div id="result-number" class="col-md-3 table-responsive middle-col middle-col-support">
-            {{searchResp.hits.total}} {{translation.SEARCH_RESULTS}} {{translation.SEARCH_IN}} {{searchResp.took}} {{translation.SEARCH_MS}}
-         </div>
-        <div class="col-xs-6 col-md-3 table-responsive middle-col middle-col-support">
-            <span ng-bind="translation.SEARCH_PAGE_DISPLAY">Display</span>
-            <select ng-model="pageSize" ng-options="c.label for c in pageSizes" ng-change="selectPage(1)"></select>
-        </div>
-        <div class="col-xs-6 col-md-4 table-responsive middle-col-support">
-            <pagination previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-                        total-items="totalItems" page="currentPage" max-size="maxSize" class="pagination-sm" boundary-links="true"
-                        rotate="false" num-pages="numPages" items-per-page="pageSize.count" on-select-page="selectPage(page)"></pagination>
-        </div>
+  <div class="row">
+    <div class="col-md-3 table-responsive middle-col middle-col-support" id="result-number">
+      {{searchResp.hits.total}}
+      {{translation.SEARCH_RESULTS}}
+      {{translation.SEARCH_IN}}
+      {{searchResp.took}}
+      {{translation.SEARCH_MS}}
     </div>
-    <div class="row">
-        <div class="col-xs-8 table-responsive">
-            <table class="table table-striped">
-                <tr ng-repeat="hit in searchResp.hits.hits">
-                    <td>
-                        <cover album-id="hit._source.gid"></cover>
-                    </td>
-                    <td>
-                        <musicnodeplayer ng-if="hit._source.nodeId != null" node-id="hit._source.nodeId"></musicnodeplayer>
-                    </td>
-                    <td>
-                        <a href="http://musicbrainz.org/release-group/{{hit._source.album.gid}}">
-                            <strong>{{hit._source.album.name}}</strong></a>
-                        {{translation.ALBUM_FROM}}
-                        <a href="http://musicbrainz.org/artist/{{hit._source.album.artist.gid}}">
-                            <strong>{{hit._source.album.artist.name}}</strong>
-                        </a><br />
-                        <rank score="hit._source.album.rating.score"></rank><br/>
-                        {{translation.LABEL_RELEASE_ON}}:
-                        <a href="http://musicbrainz.org/label/{{hit._source.label.gid}}">
-                            <strong>{{hit._source.label.name}}</strong>
-                        </a><br />
-                        {{translation.ALBUM_RELEASE}}: {{hit._source.album.year}} - {{hit._source.album.artist.area_name}}<br />
-                        {{translation.ALBUM_KIND}}: {{hit._source.album.tags | joinBy:' - '}}
-                    </td>
-                </tr>
-            </table>
-            <pager total-items="totalItems" page="currentPage" on-select-page="selectPage(page)"></pager>
-        </div>
-        <div class="col-xs-4" ng-show="isAtLeastOneResult()">
-            <div class="panel panel-primary">
-                <div class="panel-heading" ng-bind="translation.FILTER_TITLE">Filters</div>
-                <div class="panel-body">
-                    <h4 ng-bind="translation.FILTER_RATING">Rating</h4>
-                    <ul class="list-unstyled">
-                        <li ng-repeat="rating in searchResp.facets.album_rating.entries | reverse">
-                            <rank score="rating.key" ceil="20"></rank> : {{rating.count}}
-                        </li>
-                    </ul>
-                    <h4 ng-bind="translation.FILTER_ARTIST_TYPE">Artist Type</h4>
-                    <ul class="list-unstyled">
-                        <li ng-repeat="type in searchResp.facets.artist_type.terms">
-                            {{type.term | artistTypeLabel}} : {{type.count}}
-                        </li>
-                     </ul>
-                    <h4 ng-bind="translation.FILTER_RELEASE_DATE">Release Date</h4>
-                    <ul class="list-unstyled">
-                        <li ng-repeat="range in searchResp.facets.album_year.ranges | filter:rangeGreaterThanZero">
-                            {{range | yearFormat}} : {{range.count}}
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+    <div class="col-xs-6 col-md-3 table-responsive middle-col middle-col-support">
+      <span ng-bind="translation.SEARCH_PAGE_DISPLAY">Display</span>
+      <select ng-change="selectPage(1)" ng-model="pageSize" ng-options="c.label for c in pageSizes"></select>
     </div>
+    <div class="col-xs-6 col-md-4 table-responsive middle-col-support">
+      <pagination boundary-links="true" class="pagination-sm" first-text="&laquo;" items-per-page="pageSize.count" last-text="&raquo;" max-size="maxSize" next-text="&rsaquo;" num-pages="numPages" on-select-page="selectPage(page)" page="currentPage" previous-text="&lsaquo;" rotate="false" total-items="totalItems"></pagination>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-8 table-responsive">
+      <table class="table table-striped">
+        <tr ng-repeat="hit in searchResp.hits.hits">
+          <td>
+            <cover album-id="hit._source.gid"></cover>
+          </td>
+          <td>
+            <musicnodeplayer ng-if="hit._source.nodeId != null" node-id="hit._source.nodeId"></musicnodeplayer>
+          </td>
+          <td>
+            <a href="http://musicbrainz.org/release-group/{{hit._source.album.gid}}">
+              <strong>{{hit._source.album.name}}</strong>
+            </a>
+            {{translation.ALBUM_FROM}}
+            <a href="http://musicbrainz.org/artist/{{hit._source.album.artist.gid}}">
+              <strong>{{hit._source.album.artist.name}}</strong>
+            </a><br/>
+            <rank score="hit._source.album.rating.score"></rank><br/>
+            {{translation.LABEL_RELEASE_ON}}:
+            <a href="http://musicbrainz.org/label/{{hit._source.label.gid}}">
+              <strong>{{hit._source.label.name}}</strong>
+            </a><br/>
+            {{translation.ALBUM_RELEASE}}:
+            {{hit._source.album.year}}
+            -
+            {{hit._source.album.artist.area_name}}<br/>
+            {{translation.ALBUM_KIND}}:
+            {{hit._source.album.tags | joinBy:' - '}}
+          </td>
+        </tr>
+      </table>
+      <pager on-select-page="selectPage(page)" page="currentPage" total-items="totalItems"></pager>
+    </div>
+    <div class="col-xs-4" ng-show="isAtLeastOneResult()">
+      <div class="panel panel-primary">
+        <div class="panel-heading" ng-bind="translation.FILTER_TITLE">Filters</div>
+        <div class="panel-body">
+          <h4 ng-bind="translation.FILTER_RATING">Rating</h4>
+          <ul class="list-unstyled">
+            <li ng-repeat="rating in searchResp.facets.album_rating.entries | reverse">
+              <rank ceil="20" score="rating.key"></rank>
+              :
+              {{rating.count}}
+            </li>
+          </ul>
+          <h4 ng-bind="translation.FILTER_ARTIST_TYPE">Artist Type</h4>
+          <ul class="list-unstyled">
+            <li ng-repeat="type in searchResp.facets.artist_type.terms">
+              {{type.term | artistTypeLabel}}
+              :
+              {{type.count}}
+            </li>
+          </ul>
+          <h4 ng-bind="translation.FILTER_RELEASE_DATE">Release Date</h4>
+          <ul class="list-unstyled">
+            <li ng-repeat="range in searchResp.facets.album_year.ranges | filter:rangeGreaterThanZero">
+              {{range | yearFormat}}
+              :
+              {{range.count}}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

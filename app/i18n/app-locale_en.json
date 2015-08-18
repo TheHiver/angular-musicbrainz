@@ -1,6 +1,9 @@
 {
-    "SEARCH_LABEL" : "Searching a music album",
-    "SEARCH_PLACEHOLDER" : "Enter a music album",
+    "SEARCH_LABEL" : "Search",
+    "SEARCH_ARTIST_PLACEHOLDER" : "Artist name",
+    "SEARCH_ALBUM_PLACEHOLDER" : "Album",
+    "SEARCH_LABEL_PLACEHOLDER" : "Label",
+    "SEARCH_YEAR_PLACEHOLDER" : "Release Year",
     "SEARCH_BUTTON" : "MusicBrainz Search",
     "SEARCH_RESULTS" : "result(s)",
     "SEARCH_MS" : "milliseconds",
